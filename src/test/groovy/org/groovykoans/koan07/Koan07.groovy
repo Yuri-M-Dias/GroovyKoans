@@ -31,7 +31,8 @@ class Koan07 extends GroovyTestCase {
         def technologies = ['Grails', 'Gradle', '.NET', 'Python', 'Groovy']
         def regexp
         // ------------ START EDITING HERE ----------------------
-        regexp = '^G.*[e|s]$'
+        regexp = '$G.*(e|s)^'
+
         // ------------ STOP EDITING HERE  ----------------------
         def result = technologies.findAll { it ==~ regexp }
 
@@ -51,8 +52,8 @@ class Koan07 extends GroovyTestCase {
         String groovyString
         // ------------ START EDITING HERE ----------------------
         groovyString = """In Java a multiline string
-requires using special signs such as $signs
-and can become difficult to maintain"""
+requires using special signs such as ${signs}
+and can become difficult to maintain""".stripIndent()
         // ------------ STOP EDITING HERE  ----------------------
         assert groovyString == javaString
     }
@@ -113,12 +114,10 @@ and can become difficult to maintain"""
         def names = 'John Lennon, Paul McCartney, George Harrison, Ringo Starr'
         def firstNamesList = []
         // ------------ START EDITING HERE ----------------------
-        def matcher = names =~ /(\w+)\s(\w+)/
-        matcher.each { match, first, last ->
-            firstNamesList << first
+        def nameMatcher = ~/(\w+)\s\w+,?\s?/
+        names.eachMatch nameMatcher, {
+            firstNamesList << it[1]
         }
-        // Note - there are better ways to achieve the same in Groovy (String.eachMatch, Collections.collect, etc)
-        // but that's not the point of this specific exercise :)
         // ------------ STOP EDITING HERE  ----------------------
         assert firstNamesList == ['John', 'Paul', 'George', 'Ringo']
 
@@ -127,7 +126,8 @@ and can become difficult to maintain"""
         def number = '4927856234092'
         boolean isNumberValid = false
         // ------------ START EDITING HERE ----------------------
-        isNumberValid = number ==~ /^4[0-9]{12}(?:[0-9]{3})?$/
+        def visaRegex = ~/^4[0-9]{12}$/
+        isNumberValid = number ==~ visaRegex
         // ------------ STOP EDITING HERE  ----------------------
         assert isNumberValid, 'Visa number should be valid!'
     }
@@ -146,7 +146,16 @@ and can become difficult to maintain"""
                       |In the land of submarines'''.stripMargin()
         def result
         // ------------ START EDITING HERE ----------------------
-        result = song.replaceAll(/\w+/) { dictionary[it] ?: it }
+        def builder = new StringBuilder()
+        song.eachLine {
+            def line = it
+            dictionary.keySet().each {
+                line = line.replaceAll(it, dictionary[it])
+            }
+            builder.append(line.toString() + '\n')
+        }
+        builder.deleteCharAt(builder.length() - 1)
+        result = builder.toString()
         // ------------ STOP EDITING HERE  ----------------------
 
         def expected = '''|In the ciudad where I was born
@@ -171,12 +180,13 @@ and can become difficult to maintain"""
         // create the same regular expression to sum the total leftovers, but this time document the regex
         String regexp
         // ------------ START EDITING HERE ----------------------
-        regexp = /(?smx)
-                 (.*?)      # item name
-                 \s+        # space
-                 (\d+)      # number sold
-                 \s+        # space
-                 (\d+)      # leftover/
+        regexp = '''(?ix)    # extended patterns
+                    (.*?)   # Matches anything
+                    \\s+     # One or more spaces
+                    (\\d+)   # One or more digit group
+                    \\s+     # One or more spaces
+                    (\\d+)   # The actual digits that we want'''.stripMargin();
+
         // ------------ STOP EDITING HERE  ----------------------
         def sum = text.findAll(regexp) { it[3].toInteger() }.sum()
         // ^^ This is even more concise than the previous example! Choose the one you feel most comfortable with.

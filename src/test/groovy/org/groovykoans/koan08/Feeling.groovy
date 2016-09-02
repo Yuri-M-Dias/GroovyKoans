@@ -11,13 +11,24 @@ public enum Feeling {
     Happy, Sad, Neutral, Suicidal, Anticipation, Surprised, Relaxed, Guilty
 
     // ------------ START EDITING HERE ----------------------
-    boolean isCase(Person person) {
-        person.feelings.contains(this)
+
+    public boolean isCase(final Cartoon cartoon) {
+        cartoon?.feeling == this
     }
 
-    boolean isCase(Cartoon cartoon) {
-        cartoon.feeling == this
+    public boolean isCase(final Person person) {
+        def result = false
+        person?.feelings?.each {
+            def feel = it
+            values().each {
+                if (feel == it){
+                    result = true
+                }
+            }
+        }
+        result
     }
+
     // ------------ STOP EDITING HERE  ----------------------
 
 

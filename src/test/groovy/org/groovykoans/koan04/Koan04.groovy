@@ -96,7 +96,7 @@ class Koan04 extends GroovyTestCase {
 
         // Let's check that we got the same result (you can use the assertX methods)
         // ------------ START EDITING HERE ----------------------
-        assert javaResult == groovyResult
+        assertEquals(groovyResult, javaResult)
         // ------------ STOP EDITING HERE  ----------------------
 
         // To make the code even cleaner, Groovy allows some syntactic sugar. If your method has a closure as its
@@ -111,7 +111,9 @@ class Koan04 extends GroovyTestCase {
         // What will monkeyColors contain?
         def expectedMonkeyColors = []
         // ------------ START EDITING HERE ----------------------
-        expectedMonkeyColors = ['blue', 'red', 'purple']
+        expectedMonkeyColors << 'blue';
+        expectedMonkeyColors << 'red';
+        expectedMonkeyColors << 'purple';
         // ------------ STOP EDITING HERE  ----------------------
         assert monkeyColors == expectedMonkeyColors
 
@@ -123,9 +125,10 @@ class Koan04 extends GroovyTestCase {
         StringWriter filteredResult = new StringWriter()
         def prefix = 'src/test/groovy/org/groovykoans/koan04/'
         // ------------ START EDITING HERE ----------------------
-        def file = new File("$prefix/exercise.txt")
-        file.filterLine(filteredResult) { String line ->
-            !line.startsWith('#')
+        new File("$prefix/exercise.txt").eachLine {
+            if (!it.startsWith("#")) {
+                filteredResult.write(it + '\n')
+            }
         }
         // ------------ STOP EDITING HERE  ----------------------
 

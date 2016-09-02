@@ -27,11 +27,13 @@ class Koan12 extends GroovyTestCase {
         // Use shouldFail() to make this unit test pass. Try to be specific about the exception type.
 
         // ------------ START EDITING HERE ----------------------
-        shouldFail(MissingMethodException) {
+
+
             // ------------ STOP EDITING HERE  ----------------------
             Integer.nonExistentMethod()
             // ------------ START EDITING HERE ----------------------
-        }
+
+
         // ------------ STOP EDITING HERE  ----------------------
 
     }
@@ -46,9 +48,8 @@ class Koan12 extends GroovyTestCase {
         Factory factory = new Factory()
         long startTime = System.currentTimeMillis()
         // ------------ START EDITING HERE ----------------------
-        def stub = new Expando();
-        stub.work = { number -> number + 10 }
-        factory.worker = stub
+
+
         // ------------ STOP EDITING HERE  ----------------------
         factory.work()
         long endTime = System.currentTimeMillis()
@@ -60,8 +61,8 @@ class Koan12 extends GroovyTestCase {
         // Try to experiment with Map Coercion too - http://docs.groovy-lang.org/latest/html/documentation/index.html#_mocking_and_stubbing
         startTime = System.currentTimeMillis()
         // ------------ START EDITING HERE ----------------------
-        Worker worker = { number -> number + 10 } as Worker
-        StaticFactory.metaClass.static.getWorker = { worker }
+
+
         // ------------ STOP EDITING HERE  ----------------------
        new StaticFactory(numbers: 1..10).work()
         endTime = System.currentTimeMillis()

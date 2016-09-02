@@ -11,31 +11,34 @@ import org.codehaus.groovy.runtime.InvokerHelper
 
 class Robot {
     // ------------ START EDITING HERE ----------------------
-    def x = 0, y = 0
+    int x, y
+    private final int offset = 1
 
-    void left() {
-        x--
+    void left(){
+        x -= offset
     }
 
-    void right() {
-        x++
+    void right(){
+        x += offset
     }
 
-    void up() {
-        y++
+    void up(){
+        y += offset
     }
 
-    void down() {
-        y--
+    void down(){
+        y -= offset
     }
 
-    Object invokeMethod(String methodName, Object args) {
-        if (methodName ==~ /go(Left|Right|Up|Down)*/) {
-            methodName.findAll(/(?i)(left|right|up|down)/) { match, String action ->
-                InvokerHelper.getMetaClass(this).invokeMethod(this, action.toLowerCase(), null)
+    def invokeMethod(String name, Object args){
+        def nameMatcher = ~/([A-Z][a-z]{1,4})/
+        def methods = this.metaClass.methods*.name.sort().unique()
+        name.findAll(nameMatcher) {
+            def methodName = it[1].toLowerCase()
+            if (methodName in methods) {
+                this."${methodName}"()
             }
         }
-        null
     }
     // ------------ STOP EDITING HERE  ----------------------
 }
