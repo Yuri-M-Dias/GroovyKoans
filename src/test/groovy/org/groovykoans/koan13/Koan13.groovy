@@ -30,8 +30,7 @@ class Koan13 extends Specification {
         expect:
         def circum = { r -> 2 * Math.PI * r }
         // ------------ START EDITING HERE ----------------------
-
-
+        def r = 1 / Math.PI
         // ------------ STOP EDITING HERE  ----------------------
         circum(r) == 2
     }
@@ -54,8 +53,7 @@ class Koan13 extends Specification {
 
     def magicFormula(a, b) {
         // ------------ START EDITING HERE ----------------------
-
-
+        a * b + 2
         // ------------ STOP EDITING HERE  ----------------------
     }
 
@@ -69,8 +67,8 @@ class Koan13 extends Specification {
         where:
         // Hint - this can be done in two lines
         // ------------ START EDITING HERE ----------------------
-
-
+        a << [1..10].flatten()
+        b << [10..<0].flatten()
         // ------------ STOP EDITING HERE  ----------------------
         c = a * b
     }

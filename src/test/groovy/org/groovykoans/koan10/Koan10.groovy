@@ -7,6 +7,7 @@
 
 package org.groovykoans.koan10
 
+import groovy.util.slurpersupport.NodeChild
 import groovy.xml.MarkupBuilder
 
 /**
@@ -47,19 +48,26 @@ class Koan10 extends GroovyTestCase {
         // Hint: pay attention to the type of objects you're getting.
         List<String> moviesWithThe = []
         // ------------ START EDITING HERE ----------------------
-        moviesXML.children().grep {
-            it.title
-            movieCount++
+        moviesXML.children().each {
+            String title = ((String) it?.title)
+            if (title.matches(/.*[Tt]he.*/)) { //
+                moviesWithThe << title
+            }
         }
-
         // ------------ STOP EDITING HERE  ----------------------
         assert moviesWithThe.containsAll(['Conan the Barbarian', 'The Expendables', 'The Terminator'])
 
         // How many movie ids have a value greater than 5?
         def movieIdsGreaterThan5
         // ------------ START EDITING HERE ----------------------
-
-
+        movieIdsGreaterThan5 = 0
+        moviesXML.children().each {
+            Map attributes = ((NodeChild) it).attributes()
+            Long id = Long.parseLong((String) attributes.get("id"))
+            if (id != null && id > 5) {
+                movieIdsGreaterThan5++
+            }
+        }
         // ------------ STOP EDITING HERE  ----------------------
         assert movieIdsGreaterThan5 == 2
     }
@@ -72,8 +80,27 @@ class Koan10 extends GroovyTestCase {
 
         List<String> sortedList = []
         // ------------ START EDITING HERE ----------------------
-
-
+        def XMLPath = new File('src/test/groovy/org/groovykoans/koan10/movies.xml')
+        def moviesXML = new XmlSlurper().parse(XMLPath)
+        Map<Integer, List<String>> yearMapToMovies = new HashMap<>()
+        moviesXML.children().each {
+            String title = ((String) it.title)
+            int year = Integer.parseInt((String) it.year)
+            List<String> currentMoviesList = yearMapToMovies.get(year)
+            if (currentMoviesList == null) {
+                currentMoviesList = new ArrayList<>()
+            }
+            currentMoviesList << title
+            yearMapToMovies.put(year, currentMoviesList)
+        }
+        //yearMapToMovies = yearMapToMovies.sort { a, b -> a.key <=> b.key }
+        yearMapToMovies = yearMapToMovies.sort { it.key }
+        yearMapToMovies.each {
+            List<String> currentMoviesList = it.value
+            currentMoviesList.sort().each {
+                sortedList << (String) it
+            }
+        }
         // ------------ STOP EDITING HERE  ----------------------
         assert sortedList == ['Conan the Barbarian', 'The Terminator', 'Predator',
                 'Kindergarten Cop', 'Total Recall', 'True Lies', 'The Expendables']
@@ -97,8 +124,13 @@ class Koan10 extends GroovyTestCase {
         // Using MarkupBuilder, create the above html as String
         def html
         // ------------ START EDITING HERE ----------------------
-
-
+        def stringWriter = new StringWriter()
+        new MarkupBuilder(stringWriter).html {
+            body {
+                h1 { mkp.yield('title') }
+            }
+        }
+        html = stringWriter.toString()
         // ------------ STOP EDITING HERE  ----------------------
         assert formatXml(html) == formatXml("<html><body><h1>title</h1></body></html>")
     }
@@ -114,8 +146,23 @@ class Koan10 extends GroovyTestCase {
 
         String convertedXml
         // ------------ START EDITING HERE ----------------------
-
-
+        def XMLPath = new File('src/test/groovy/org/groovykoans/koan10/movies.xml')
+        def moviesXML = new XmlSlurper().parse(XMLPath)
+        def propertiesMap = []
+        moviesXML.children().each {
+            Map attributes = ((NodeChild) it).attributes()
+            Long id = Long.parseLong((String) attributes.get("id"))
+            String title = ((String) it.title)
+            int year = Integer.parseInt((String) it.year)
+            propertiesMap << [id : id, title: title, year: year]
+        }
+        def stringWriter = new StringWriter()
+        def markupBuilder = new MarkupBuilder(stringWriter).movies {
+            propertiesMap.each { mov ->
+                movie(id : mov.id, title: mov.title, year: mov.year)
+            }
+        }
+        convertedXml = stringWriter.toString()
         // ------------ STOP EDITING HERE  ----------------------
         def expected = """|<movies>
                             |  <movie id='6' title='Total Recall' year='1990' />
@@ -149,8 +196,8 @@ class Koan10 extends GroovyTestCase {
         // http://ant.apache.org/manual/Tasks/copy.html
         def baseDir = 'src/test/groovy/org/groovykoans/koan10'
         // ------------ START EDITING HERE ----------------------
-
-
+        def ant = new AntBuilder()
+        ant.copy(file: "${baseDir}/movies.xml", tofile: "${baseDir}/movies_copy.xml")
         // ------------ STOP EDITING HERE  ----------------------
         assert new File("${baseDir}/movies_copy.xml").exists()
     }
@@ -163,8 +210,9 @@ class Koan10 extends GroovyTestCase {
         def baseDir = 'src/test/groovy/org/groovykoans/koan10'
         def actualChecksum
         // ------------ START EDITING HERE ----------------------
-
-
+        def ant = new AntBuilder()
+        ant.checksum(file: "${baseDir}/movies.xml", property: 'moviesChecksum')
+        actualChecksum = ant.project.properties.moviesChecksum
         // ------------ STOP EDITING HERE  ----------------------
         assert actualChecksum == '9160b6a6555e31ebc01f30c1db7e1277'
     }
